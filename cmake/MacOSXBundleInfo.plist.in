@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>CFBundleDevelopmentRegion</key>
+		<string>en</string>
+		<key>CFBundleDisplayName</key>
+		<string>栗鼠输入法</string>
+		<key>CFBundleExecutable</key>
+		<string>Chinchilla</string>
+		<key>CFBundleIconFile</key>
+		<string>AppIcon</string>
+		<key>CFBundleIconName</key>
+		<string>AppIcon</string>
+		<key>CFBundleIdentifier</key>
+		<string>me.hotleave.inputmethod.Chinchilla</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>${MACOSX_BUNDLE_BUNDLE_NAME}</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>CFBundleShortVersionString</key>
+		<string>${MACOSX_BUNDLE_BUNDLE_VERSION}</string>
+		<key>CFBundleSupportedPlatforms</key>
+		<array>
+			<string>MacOSX</string>
+		</array>
+		<key>CFBundleVersion</key>
+		<string>${MACOSX_BUNDLE_BUNDLE_VERSION}</string>
+
+		<key>ComponentInputModeDict</key>
+		<dict>
+			<key>tsInputModeListKey</key>
+			<dict>
+				<key>me.hotleave.inputmethod.Chinchilla.Hans</key>
+				<dict>
+					<key>TISIconLabels</key>
+					<dict>
+						<key>Primary</key>
+						<string>栗</string>
+					</dict>
+					<key>TISInputSourceID</key>
+					<string>me.hotleave.inputmethod.Chinchilla.Hans</string>
+					<key>TISIntendedLanguage</key>
+					<string>zh-Hans</string>
+					<key>tsInputModeAlternateMenuIconFileKey</key>
+					<string>MenuIcon.pdf</string>
+					<key>tsInputModeDefaultStateKey</key>
+					<true />
+					<key>tsInputModeIsVisibleKey</key>
+					<true />
+					<key>tsInputModeKeyEquivalentModifiersKey</key>
+					<integer>4608</integer>
+					<key>tsInputModeMenuIconFileKey</key>
+					<string>MenuIcon.pdf</string>
+					<key>tsInputModePaletteIconFileKey</key>
+					<string>MenuIcon.pdf</string>
+					<key>tsInputModePrimaryInScriptKey</key>
+					<true />
+					<key>tsInputModeScriptKey</key>
+					<string>smSimpChinese</string>
+				</dict>
+				<key>me.hotleave.inputmethod.Chinchilla.Hant</key>
+				<dict>
+					<key>TISIconLabels</key>
+					<dict>
+						<key>Primary</key>
+						<string>栗</string>
+					</dict>
+					<key>TISInputSourceID</key>
+					<string>me.hotleave.inputmethod.Chinchilla.Hans</string>
+					<key>TISIntendedLanguage</key>
+					<string>zh-Hant</string>
+					<key>tsInputModeAlternateMenuIconFileKey</key>
+					<string>MenuIcon.pdf</string>
+					<key>tsInputModeDefaultStateKey</key>
+					<true />
+					<key>tsInputModeIsVisibleKey</key>
+					<true />
+					<key>tsInputModeKeyEquivalentModifiersKey</key>
+					<integer>4608</integer>
+					<key>tsInputModeMenuIconFileKey</key>
+					<string>MenuIcon.pdf</string>
+					<key>tsInputModePaletteIconFileKey</key>
+					<string>MenuIcon.pdf</string>
+					<key>tsInputModePrimaryInScriptKey</key>
+					<true />
+					<key>tsInputModeScriptKey</key>
+					<string>smSimpChinese</string>
+				</dict>
+			</dict>
+			<key>tsVisibleInputModeOrderedArrayKey</key>
+			<array>
+				<string>me.hotleave.inputmethod.Chinchilla.Hans</string>
+				<string>me.hotleave.inputmethod.Chinchilla.Hant</string>
+			</array>
+		</dict>
+		<key>InputMethodConnectionName</key>
+		<string>me.hotleave.inputmethod.Chinchilla_connection</string>
+		<key>InputMethodServerControllerClass</key>
+		<string>Chinchilla.ChinchillaInputController</string>
+		<key>InputMethodServerDelegateClass</key>
+		<string>Chinchilla.ChinchillaInputController</string>
+		<key>LSBackgroundOnly</key>
+		<false />
+		<key>LSMinimumSystemVersion</key>
+		<string>13.0</string>
+		<key>LSUIElement</key>
+		<true />
+		<key>NSPrincipalClass</key>
+		<string>Chinchilla.NSManualApplication</string>
+		<key>TICapsLockLanguageSwitchCapable</key>
+		<true />
+		<key>TISIconIsTemplate</key>
+		<true />
+		<key>tsInputMethodCharacterRepertoireKey</key>
+		<array>
+			<string>Hans</string>
+			<string>Hant</string>
+			<string>Latn</string>
+		</array>
+		<key>tsInputMethodIconFileKey</key>
+		<string>AppIcon</string>
+	</dict>
+</plist>

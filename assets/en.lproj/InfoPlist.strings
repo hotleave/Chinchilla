@@ -1,0 +1,4 @@
+CFBundleName = "Chinchilla";
+CFBundleDisplayName = "Chinchilla";
+me.hotleave.inputmethod.Chinchilla.Hans = "Chinchilla";
+me.hotleave.inputmethod.Chinchilla.Hant = "Chinchilla";

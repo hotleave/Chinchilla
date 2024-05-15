@@ -1,0 +1,6 @@
+module CRime [system] {
+  header "include/rime_api.h"
+  header "include/rime_levers_api.h"
+  link "rime"
+  export *
+}
