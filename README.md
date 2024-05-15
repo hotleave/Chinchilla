@@ -3,6 +3,9 @@ A input method for macOS based on Swift and CMake,
 forked from [eagleoflqj/toyimk](https://github.com/eagleoflqj/toyimk):
 A project is for developers who don't like deprecated Objective-C and ugly `.xcodeproj`.
 
+Rime files: `~/Library/Application Support/Chinchilla/Rime/`
+Rime logs: `~/Library/Application Support/Chinchilla/logs`
+
 ## Install dependencies
 ```sh
 brew install swiftlint ninja
