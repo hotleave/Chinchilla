@@ -1,8 +1,8 @@
 import InputMethodKit
 
 class ChinchillaInputController: IMKInputController {
-  var sessionId: UInt = 0
-  var lastModifiers = NSEvent.ModifierFlags(rawValue: 0)
+  private var sessionId: UInt = 0
+  private var lastModifiers: NSEvent.ModifierFlags = .init()
 
   override func recognizedEvents(_ sender: Any!) -> Int {
     let events: NSEvent.EventTypeMask = [.keyDown, .flagsChanged]
@@ -10,40 +10,51 @@ class ChinchillaInputController: IMKInputController {
   }
 
   override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
-    guard let event = event, let _ = sender as? IMKTextInput else {
-      return false
-    }
-
+    NSLog("processKey: type=\(event.type), keyCode=\(event.keyCode), modifiers=\(event.modifierFlags)")
     if (sessionId == 0 || !AppDelegate.rime.isSessionValid(sessionId)) {
       // 如果当前 sessionId 不可用则新创建一个
       sessionId = AppDelegate.rime.createSession()
+      if sessionId == 0 {
+        return false
+      }
     }
 
     let keyCode = event.keyCode
     let modifiers = event.modifierFlags
+    var handled = false
 
     switch event.type {
       case .keyDown:
-        var unicode: UInt32 = 0
-        if let characters = event.characters {
-          let scalars = characters.unicodeScalars
-          unicode = scalars[scalars.startIndex].value
+        if modifiers.contains(.command) {
+          break
         }
 
-        return processKey(unicode, modifiers, keyCode, false)
+        var keyChars = event.characters
+        if !(keyChars?.first?.isLetter ?? false) {
+          keyChars = event.charactersIgnoringModifiers
+        }
+
+        if let unicode = keyChars?.first?.unicodeScalars.first?.value {
+          handled = processKey(keyCode: keyCode, modifiers: modifiers, unicode: unicode, release: false)
+        }
       case .flagsChanged:
-        let change = NSEvent.ModifierFlags(rawValue: modifiers.rawValue ^ lastModifiers.rawValue)
-        lastModifiers = modifiers
-
-        if change.contains(.shift) || change.contains(.control) || change.contains(.command) || change.contains(.option) || change.contains(.capsLock) {
-          let isRelease = (lastModifiers.rawValue & change.rawValue) == 0
-          return processKey(0, modifiers, keyCode, isRelease)
-        } else {
-          return false
+        if lastModifiers == modifiers {
+          handled = true
+          break
         }
+
+        let change = lastModifiers.symmetricDifference(modifiers)
+        if change.contains(.shift) || change.contains(.control) || change.contains(.command) || change.contains(.option) || change.contains(.capsLock) {
+          let isRelease = (modifiers.rawValue & change.rawValue) == 0
+          _ = processKey(keyCode: keyCode, modifiers: modifiers, unicode: 0, release: isRelease)
+        }
+
+        lastModifiers = modifiers
       default:
-        return false
+        break
     }
+
+    return handled
   }
 
   override func menu() -> NSMenu! {
@@ -80,10 +91,14 @@ class ChinchillaInputController: IMKInputController {
     return candidates
   }
 
-  private func processKey(_ unicode: UInt32, _ modifiers: NSEvent.ModifierFlags, _ code: UInt16, _ release: Bool) -> Bool {
-    let keyCode = RimeKeyboardEvent.toRimeKeyCode(keyCode: code, char: CChar(unicode))
-    let mask = RimeKeyboardEvent.toRimeMask(flags: modifiers, release: release)
-    let handled = AppDelegate.rime.processKey(sessionId: sessionId, keyCode: keyCode, mask: mask)
+  private func processKey(keyCode: UInt16, modifiers: NSEvent.ModifierFlags, unicode: UInt32,  release: Bool) -> Bool {
+    let rimeKeyCode = RimeKeyboardEvent.toRimeKeyCode(keyCode: keyCode, unicode: unicode)
+    let rimeMask = RimeKeyboardEvent.toRimeMask(flags: modifiers, release: release)
+    var handled = false
+
+    if rimeKeyCode != 0xffffff {
+      handled = AppDelegate.rime.processKey(sessionId: sessionId, keyCode: rimeKeyCode, mask: rimeMask)
+    }
 
     if unicode == 0 || handled {
       rimeUpdate()

@@ -1,4 +1,5 @@
 import Cocoa
+import Carbon
 import CRime
 
 private func nofificationHandler(contextObject: UnsafeMutableRawPointer?, sessionId: RimeSessionId, messageType: UnsafePointer<CChar>?, messageValue: UnsafePointer<CChar>?) {
@@ -60,59 +61,79 @@ class RimeKeyboardEvent {
   static let kReleaseMask: Int32 = 1 << 30
   static let kModifierMask: Int32 = 0x5f001fff
 
-  private static let key_map = [
-    // Delete -> Backspace
-    0x33: 0xff08,
-    // Delete -> Delete
-    0x75: 0xffff,
-    // Tab
-    0x30: 0xff09,
-    // Return
-    0x24: 0xff0d,
-    // Enter
-    0x4c: 0xff8d,
-    // Escape
-    0x35: 0xff1b,
-    // Space
-    0x31: 0x0020,
+  private static let key_map: Dictionary<Int, Int32> = [
+    // modifiers
+    kVK_CapsLock: 0xffe5,
+    kVK_Command: 0xffeb,
+    kVK_Control: 0xffe3,
+    kVK_Function: 0xffed,
+    kVK_Option: 0xffe9,
+    kVK_RightCommand: 0xffec,
+    kVK_RightControl: 0xffe4,
+    kVK_RightOption: 0xffea,
+    kVK_RightShift: 0xffe2,
+    kVK_Shift: 0xffe1,
 
-    // CapsLock
-    0x39: 0xffe5,
-    // Command_L
-    0x37: 0xffeb,
-    // Command_R
-    0x36: 0xffec,
-    // Ctrl_L
-    0x3b: 0xffe3,
-    // Ctrl_R
-    0x3e: 0xffe4,
-    // Fn
-    0x3f: 0xffed,
-    // Option_L
-    0x3a: 0xffe9,
-    // Option_R
-    0x3d: 0xffea,
-    // Shift_L
-    0x38: 0xffe1,
-    // Shift_R
-    0x3c: 0xffe2,
+    // special
+    kVK_Delete: 0xff08,
+    kVK_Escape: 0xff1b,
+    kVK_ForwardDelete: 0xffff,
+    kVK_Help: 0xff6a,
+    kVK_Return: 0xff0d,
+    kVK_Space: 0x0020,
+    kVK_Tab: 0xff09,
 
-    // Up
-    0x7e: 0xff52,
-    // Down
-    0x7d: 0xff54,
-    // Left
-    0x7b: 0xff51,
-    // Right
-    0x7c: 0xff53,
-    // PageUp
-    0x74: 0xff55,
-    // PageDown
-    0x79: 0xff56,
-    // Home
-    0x73: 0xff50,
-    // End
-    0x77: 0xff57,
+    // cursor
+    kVK_UpArrow: 0xff52,
+    kVK_DownArrow: 0xff54,
+    kVK_LeftArrow: 0xff51,
+    kVK_RightArrow: 0xff53,
+    kVK_PageUp: 0xff55,
+    kVK_PageDown: 0xff56,
+    kVK_Home: 0xff50,
+    kVK_End: 0xff57,
+
+    // function
+    kVK_F1: 0xffbe,
+    kVK_F2: 0xffbf,
+    kVK_F3: 0xffc0,
+    kVK_F4: 0xffc1,
+    kVK_F5: 0xffc2,
+    kVK_F6: 0xffc3,
+    kVK_F7: 0xffc4,
+    kVK_F8: 0xffc5,
+    kVK_F9: 0xffc6,
+    kVK_F10: 0xffc7,
+    kVK_F11: 0xffc8,
+    kVK_F12: 0xffc9,
+
+    // keypad
+    kVK_ANSI_Keypad0: 0xffb0,
+    kVK_ANSI_Keypad1: 0xffb1,
+    kVK_ANSI_Keypad2: 0xffb2,
+    kVK_ANSI_Keypad3: 0xffb3,
+    kVK_ANSI_Keypad4: 0xffb4,
+    kVK_ANSI_Keypad5: 0xffb5,
+    kVK_ANSI_Keypad6: 0xffb6,
+    kVK_ANSI_Keypad7: 0xffb7,
+    kVK_ANSI_Keypad8: 0xffb8,
+    kVK_ANSI_Keypad9: 0xffb9,
+    kVK_ANSI_KeypadClear: 0xff0b,
+    kVK_ANSI_KeypadDecimal: 0xffae,
+    kVK_ANSI_KeypadEquals: 0xffbd,
+    kVK_ANSI_KeypadMinus: 0xffad,
+    kVK_ANSI_KeypadMultiply: 0xffaa,
+    kVK_ANSI_KeypadPlus: 0xffab,
+    kVK_ANSI_KeypadDivide: 0xffaf,
+    kVK_ANSI_KeypadEnter: 0xff8d,
+    
+    // other
+    kVK_ISO_Section: 0x00a7,
+    kVK_JIS_Yen: 0x00a5,
+    kVK_JIS_Underscore: 0x005f,
+    kVK_JIS_KeypadComma: 0x002c,
+    kVK_JIS_Eisu: 0xff2f,
+    kVK_JIS_Kana: 0xff2e,
   ]
 
   static func toRimeMask(flags: NSEvent.ModifierFlags, release: Swift.Bool) -> Int32 {
@@ -141,16 +162,14 @@ class RimeKeyboardEvent {
     return mask
   }
 
-  static func toRimeKeyCode(keyCode: UInt16, char: CChar) -> Int32 {
+  static func toRimeKeyCode(keyCode: UInt16, unicode: UInt32) -> Int32 {
     if let mapped = key_map[Int(keyCode)] {
-      return Int32(mapped)
+      return mapped
     }
 
-    if (char >= 0x20 && char <= 0x7e) {
-      return Int32(char)
-    }
-
-    switch keyCode {
+    switch unicode {
+      case 0x20...0x7e:
+        return Int32(unicode)
       case 0x1b:
         // ^[
         return 0x5b
