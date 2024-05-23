@@ -36,6 +36,13 @@ class ChinchillaInputController: IMKInputController {
 
         if let unicode = keyChars?.first?.unicodeScalars.first?.value {
           handled = processKey(keyCode: keyCode, modifiers: modifiers, unicode: unicode, release: false)
+
+          if !handled {
+            let escape = keyCode == kVK_Escape || (modifiers.contains(.control) && keyCode == kVK_ANSI_LeftBracket)
+            if escape && !AppDelegate.rime.getOption(sessionId, "ascii_mode") {
+              AppDelegate.rime.setOption(sessionId, "ascii_mode", true)
+            }
+          }
         }
       case .flagsChanged:
         if lastModifiers == modifiers {

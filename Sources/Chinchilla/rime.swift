@@ -292,6 +292,15 @@ class Rime {
     return result.str.map({ String(cString: $0) })
   }
 
+  func getOption(_ sessionId: RimeSessionId, _ optionName: UnsafePointer<CChar>) -> Swift.Bool {
+    let result = api.get_option(sessionId, optionName)
+    return result == True
+  }
+
+  func setOption(_ sessionId: RimeSessionId, _ optionName: UnsafePointer<CChar>, _ optionValue: Swift.Bool) {
+    api.set_option(sessionId, optionName, optionValue ? True : False)
+  }
+
   private func newRimeStructs<T>(initializer: (_: Int32) -> T) -> T {
     let dataSize = Int32(MemoryLayout<T>.size - MemoryLayout<Int32>.size)
     return initializer(dataSize)
