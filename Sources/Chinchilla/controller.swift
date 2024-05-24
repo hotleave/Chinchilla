@@ -10,7 +10,6 @@ class ChinchillaInputController: IMKInputController {
   }
 
   override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
-    NSLog("processKey: type=\(event.type), keyCode=\(event.keyCode), modifiers=\(event.modifierFlags)")
     if (sessionId == 0 || !AppDelegate.rime.isSessionValid(sessionId)) {
       // 如果当前 sessionId 不可用则新创建一个
       sessionId = AppDelegate.rime.createSession()
@@ -29,19 +28,15 @@ class ChinchillaInputController: IMKInputController {
           break
         }
 
-        var keyChars = event.characters
-        if !(keyChars?.first?.isLetter ?? false) {
-          keyChars = event.charactersIgnoringModifiers
-        }
+        let keyChars = event.characters
+        let unicode = keyChars?.first?.unicodeScalars.first?.value ?? 0
+        handled = processKey(keyCode: keyCode, modifiers: modifiers, unicode: unicode, release: false)
 
-        if let unicode = keyChars?.first?.unicodeScalars.first?.value {
-          handled = processKey(keyCode: keyCode, modifiers: modifiers, unicode: unicode, release: false)
-
-          if !handled {
-            let escape = keyCode == kVK_Escape || (modifiers.contains(.control) && keyCode == kVK_ANSI_LeftBracket)
-            if escape && !AppDelegate.rime.getOption(sessionId, "ascii_mode") {
-              AppDelegate.rime.setOption(sessionId, "ascii_mode", true)
-            }
+        if !handled {
+          // 自动切换到 ascii 模式
+          let escape = keyCode == kVK_Escape || (modifiers.contains(.control) && keyCode == kVK_ANSI_LeftBracket)
+          if escape && !AppDelegate.rime.getOption(sessionId, "ascii_mode") {
+            AppDelegate.rime.setOption(sessionId, "ascii_mode", true)
           }
         }
       case .flagsChanged:
@@ -103,6 +98,7 @@ class ChinchillaInputController: IMKInputController {
     let rimeMask = RimeKeyboardEvent.toRimeMask(flags: modifiers, release: release)
     var handled = false
 
+    // NSLog("processKey: keyCode: \(keyCode), modifiers: \(modifiers), unicode: \(unicode), rimeKeyCode: \(rimeKeyCode), rimeMask: \(rimeMask)")
     if rimeKeyCode != 0xffffff {
       handled = AppDelegate.rime.processKey(sessionId: sessionId, keyCode: rimeKeyCode, mask: rimeMask)
     }
