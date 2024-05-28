@@ -62,12 +62,39 @@ class ChinchillaInputController: IMKInputController {
   override func menu() -> NSMenu! {
     let menu = NSMenu()
 
-    menu.addItem(withTitle: "重新部署", action: #selector(redeploy), keyEquivalent: "")
-    menu.addItem(withTitle: "重新启动", action: #selector(restart), keyEquivalent: "")
-    menu.addItem(withTitle: "检查更新", action: #selector(checkForUpdate), keyEquivalent: "")
+    let schemasItem = NSMenuItem(title: "方案", action: nil, keyEquivalent: "")
+    let schemaMenu = NSMenu()
+    let schemaList = AppDelegate.rime.schemaList().sorted { $0.key < $1.key };
+    let currentSchema = AppDelegate.rime.currentSchema(sessionId) ?? ""
+    for schema in schemaList {
+      let item = NSMenuItem(title: schema.value, action: #selector(handleMenuClick), keyEquivalent: "")
+      item.representedObject = [
+        "action": "selectSchema",
+        "schema": schema.key,
+      ]
+      if currentSchema == schema.key {
+        item.state = .on
+      }
+      schemaMenu.addItem(item)
+
+      NSLog("SelectSchema schema2=\(schema.key) \(schema.value)")
+    }
+    menu.addItem(schemasItem)
+    menu.setSubmenu(schemaMenu, for: schemasItem)
+
+    menu.addItem(NSMenuItem.separator())
+
+    menu.addItem(withTitle: "重新部署", action: #selector(redeploy(_:)), keyEquivalent: "")
+    menu.addItem(withTitle: "重新启动", action: #selector(restart(_:)), keyEquivalent: "")
+
+    // 检查更新
+    let checkForUpdateItem = NSMenuItem(title: "检查更新", action: #selector(handleMenuClick), keyEquivalent: "")
+    checkForUpdateItem.representedObject = ["action": "checkForUpdate"]
+    menu.addItem(checkForUpdateItem)
+
     menu.addItem(NSMenuItem.separator())
     menu.addItem(withTitle: "关于", action: #selector(about), keyEquivalent: "")
-
+    
     return menu
   }
 
@@ -146,21 +173,37 @@ class ChinchillaInputController: IMKInputController {
     }
   }
 
-  @objc private func redeploy() {
+  @objc private func redeploy(_: Any? = nil) {
     NSLog("Redeploy rime...")
     AppDelegate.rime.stop()
     AppDelegate.rime.start(true)
   }
 
-  @objc private func restart() {
+  @objc private func restart(_: Any? = nil) {
     NSApp.terminate(nil)
   }
 
-  @objc private func about() {
+  @objc private func about(_: Any? = nil) {
     NSLog("About Chinchilla")
   }
 
-  @objc private func checkForUpdate() {
-    NSLog("Check for update...")
+  @objc private func handleMenuClick(sender: Any?) {
+    if let sender = sender as? NSMutableDictionary {
+      if let menuItem = sender[kIMKCommandMenuItemName] as? NSMenuItem {
+        if let item = menuItem.representedObject as? Dictionary<String, String> {
+          let action = item["action"] ?? ""
+          switch(action) {
+            case "checkForUpdate":
+              NSLog("Check for update...")
+            case "selectSchema":
+              if let schema = item["schema"] {
+                AppDelegate.rime.selectSchema(sessionId, schema: schema)
+              }
+            default:
+              NSLog("Unknown action: \(action)")
+          }
+        }
+      }
+    }
   }
 }

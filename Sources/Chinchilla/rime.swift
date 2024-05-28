@@ -301,6 +301,36 @@ class Rime {
     api.set_option(sessionId, optionName, optionValue ? True : False)
   }
 
+  func schemaList() -> Dictionary<String, String> {
+    var list = RimeSchemaList()
+    var result = Dictionary<String, String>()
+    if api.get_schema_list(&list) == True {
+      for i in 0..<list.size {
+        let schema = list.list[i]
+        let name = String(cString: schema.name)
+        let id = String(cString: schema.schema_id)
+
+        result[id] = name
+      }
+    }
+    return result
+  }
+
+  func currentSchema(_ sessionId: RimeSessionId) -> String? {
+    let current = UnsafeMutablePointer<CChar>.allocate(capacity: 100)
+    if api.get_current_schema(sessionId, current, 100) == True {
+      return String(cString: current)
+    } else {
+      return nil
+    }
+  }
+
+  func selectSchema(_ sessionId: RimeSessionId, schema: String) {
+    if api.select_schema(sessionId, schema) == True {
+      NSLog("Schame successfully change to \(schema)")
+    }
+  }
+
   private func newRimeStructs<T>(initializer: (_: Int32) -> T) -> T {
     let dataSize = Int32(MemoryLayout<T>.size - MemoryLayout<Int32>.size)
     return initializer(dataSize)
